@@ -74,7 +74,7 @@ function TokenHandler:access(conf)
 
   local httpc = http:new()
 
-  local res, err = httpc:request_uri(conf.authorization_endpoint .. "verify", {
+  local res, err = httpc:request_uri(conf.authorization_endpoint .. "/apikey/verify", {
     method = "POST",
     ssl_verify = false,
     headers = { ["Content-Type"] = "application/json",

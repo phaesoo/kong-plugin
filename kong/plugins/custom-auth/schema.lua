@@ -24,7 +24,7 @@ local schema = {
               default = 600,
               required = true,
               gt = 0, }}, -- adding a constraint for the value
-          { authorization_endpoint = typedefs.url({ required = true }) },
+          { authorization_endpoint = typedefs.url({ default = "testapi.testapi/apikey", required = true }) },
           { token_header = typedefs.header_name { default = "Authorization", required = true }, }
         },
         entity_checks = {
