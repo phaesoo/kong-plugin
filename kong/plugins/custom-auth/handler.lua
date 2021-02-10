@@ -1,6 +1,4 @@
 local http = require "resty.http"
-local utils = require "kong.tools.utils"
-
 
 local TokenHandler = {
   PRIORITY = 1000, -- set the plugin priority, which determines plugin execution order
@@ -67,6 +65,30 @@ function TokenHandler:access(conf)
   kong.log.debug("kong.request.get_path()", kong.request.get_path())
   kong.log.debug("kong.request.get_raw_query()", kong.request.get_raw_query())
 
+  local body = {
+    path = kong.request.get_path(),
+    qeury = kong.request.get_raw_query(),
+  }
+
+  kong.log.debug("body", body)
+
+  local httpc = http:new()
+
+  local res, err = httpc:request_uri(conf.authorization_endpoint .. "verify", {
+    method = "POST",
+    ssl_verify = false,
+    headers = { ["Content-Type"] = "application/json",
+      [conf.token_header] = jwt_token },
+    body = json.encode(body),
+  })
+  if not res then
+    kong.log.err("Failed to call authorization_endpoint:", err)
+    return kong.response.exit(500)
+  end
+  if res.status ~= 200 then
+    kong.log.info(res.body)
+    return kong.response.exit(401) -- unauthorized
+  end
 end --]]
 
 

@@ -24,7 +24,6 @@ local schema = {
               default = 600,
               required = true,
               gt = 0, }}, -- adding a constraint for the value
-          { introspection_endpoint = typedefs.url({ required = true }) },
           { authorization_endpoint = typedefs.url({ required = true }) },
           { token_header = typedefs.header_name { default = "Authorization", required = true }, }
         },
