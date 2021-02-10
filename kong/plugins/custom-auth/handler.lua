@@ -29,7 +29,7 @@ end --]]
 -- IMPORTANT: during the `certificate` phase neither `route`, `service`, nor `consumer`
 -- will have been identified, hence this handler will only be executed if the plugin is
 -- configured as a global plugin!
-function plugin:certificate(plugin_conf)
+function plugin:certificate(conf)
 
   -- your custom code here
   kong.log.debug("saying hi from the 'certificate' handler")
@@ -42,7 +42,7 @@ end --]]
 -- IMPORTANT: during the `rewrite` phase neither `route`, `service`, nor `consumer`
 -- will have been identified, hence this handler will only be executed if the plugin is
 -- configured as a global plugin!
-function plugin:rewrite(plugin_conf)
+function plugin:rewrite(conf)
 
   -- your custom code here
   kong.log.debug("saying hi from the 'rewrite' handler")
@@ -52,35 +52,35 @@ end --]]
 
 
 -- runs in the 'access_by_lua_block'
-function TokenHandler:access(plugin_conf)
+function TokenHandler:access(conf)
   -- your custom code here
-  kong.log.inspect(plugin_conf)   -- check the logs for a pretty-printed config!
-  kong.service.request.set_header(plugin_conf.request_header, "this is on a request")
+  kong.log.inspect(conf)   -- check the logs for a pretty-printed config!
+  kong.service.request.set_header(conf.request_header, "this is on a request")
 
-  local access_token = ngx.req.get_headers()[conf.token_header]
-  if not access_token then
+  local jwt_token = kong.request.get_header(conf.token_header)
+  if not jwt_token then
     kong.response.exit(401)
   end
 
-  access_token = access_token:sub(8, -1) -- drop "Bearer "
-  local request_path = ngx.var.request_uri
-  local values = utils.split(request_path, "/")
-  local customer_id = values[3]
-  kong.log.debug("customer_id", customer_id)
+  kong.log.debug("jwt_token", jwt_token)
+  kong.log.debug("ngx.request_uri", ngx.var.request_uri)
+  kong.log.debug("kong.request.get_path()", kong.request.get_path())
+  kong.log.debug("kong.request.get_raw_query()", kong.request.get_raw_query())
+
 end --]]
 
 
 -- runs in the 'header_filter_by_lua_block'
-function TokenHandler:header_filter(plugin_conf)
+function TokenHandler:header_filter(conf)
 
   -- your custom code here, for example;
-  kong.response.set_header(plugin_conf.response_header, "this is on the response")
+  kong.response.set_header(conf.response_header, "this is on the response")
 
 end --]]
 
 
 --[[ runs in the 'body_filter_by_lua_block'
-function plugin:body_filter(plugin_conf)
+function plugin:body_filter(conf)
 
   -- your custom code here
   kong.log.debug("saying hi from the 'body_filter' handler")
@@ -89,7 +89,7 @@ end --]]
 
 
 --[[ runs in the 'log_by_lua_block'
-function plugin:log(plugin_conf)
+function plugin:log(conf)
 
   -- your custom code here
   kong.log.debug("saying hi from the 'log' handler")
