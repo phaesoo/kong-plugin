@@ -12,23 +12,26 @@ local schema = {
         -- The 'config' record is the custom part of the plugin schema
         type = "record",
         fields = {
-          -- a standard defined field (typedef), with some customizations
-          { request_header = typedefs.header_name {
-              required = true,
-              default = "Hello-World" } },
-          { response_header = typedefs.header_name {
-              required = true,
-              default = "Bye-World" } },
-          { ttl = { -- self defined field
-              type = "integer",
-              default = 600,
-              required = true,
-              gt = 0, }}, -- adding a constraint for the value
-          { authorization_endpoint = {
+          {
+            authorization_host = {
               type = "string",
-              default = "testapi.testapi/apikey",
-              required = true, }},
-          { token_header = typedefs.header_name { default = "Authorization", required = true }, }
+              default = "testapi.testapi",
+              required = true,
+            },
+          },
+          {
+            authorization_port = {
+              type = "integer",
+              default = 8080,
+              required = true,
+            },
+          },
+          {
+            token_header = typedefs.header_name {
+              default = "Authorization",
+              required = true
+            },
+          }
         },
         entity_checks = {
           -- add some validation rules across fields
