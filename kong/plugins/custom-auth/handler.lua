@@ -7,7 +7,7 @@ local TokenHandler = {
 }
 
 function TokenHandler:access(conf)
-  kong.log.debug.inspect(conf)
+  kong.log.inspect(conf)
 
   local jwt_token = kong.request.get_header(conf.token_header)
   if not jwt_token then
@@ -15,21 +15,23 @@ function TokenHandler:access(conf)
     kong.response.exit(401)
   end
 
-  local token_type = jwt_token:sub(8,-1)
+  local token_type = jwt_token:sub(0,7)
   if token_type ~= "Bearer " then
     kong.log.debug("Invalid token type: ", token_type)
     kong.response.exit(401)
   end
+  
+  kong.log.debug(conf.authorization_host, conf.authorization_port)
 
-  local httpc = http:new()
-  httpc.connect(conf.authorization_host, conf.authorization_port)
-
-  local res, err = httpc.request({
+  local httpc = http.new()
+  httpc:connect(conf.authorization_host, conf.authorization_port)
+  
+  local res, err = httpc:request({
     method = "POST",
     path = "/apikey/verify",
     headers = {
       ["Content-Type"] = "application/json",
-      [conf.token_header] = jwt_token,
+      [conf.token_header] = jwt_token
     },
     body = json.encode({
       path = kong.request.get_path(),
@@ -43,7 +45,7 @@ function TokenHandler:access(conf)
   end
 
   if res.status ~= 200 then
-    kong.log.debug("Failed to authenticate", json.decode(res.body))
+    kong.log.debug("Authentication failed", res.status)
     return kong.response.exit(401) -- unauthorized
   end
 end
