@@ -35,7 +35,7 @@ install:
 
 script:
 - "../kong-pongo/pongo.sh lint"
-- "../kong-pongo/pongo.sh run"
+- "../kong-pongo/pongo.sh run ./spec/myplugin"
 
 notifications:
   slack:

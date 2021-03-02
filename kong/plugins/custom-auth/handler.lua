@@ -7,7 +7,7 @@ local TokenHandler = {
 }
 
 function TokenHandler:access(conf)
-  kong.log.debug.inspect(conf)
+  kong.log.inspect(conf)
 
   local jwt_token = kong.request.get_header(conf.token_header)
   if not jwt_token then
